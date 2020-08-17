@@ -1,26 +1,59 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import Pauta from './components/Pauta'
+import { connect } from 'react-redux';
+import { newPauta } from './redux/thunk_actions';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+// App.js
+export class App extends Component {
+  /**
+   * component local state
+   */
+  state = {
+    /**
+     * O que o usuário está digitando
+     */
+    nova_pauta: 'Presentes'
+  };
+
+  componentDidMount() { }
+
+
+  render() {
+    console.log("redering app with props ",this.props);
+    return (
+      <div>
+        <h1>Ata da Reunião:</h1>
+        <strong>Nova Pauta: </strong>
+        <input
+          type="text"
+          value={this.state.nova_pauta}
+          onChange={ev => this.setState({ nova_pauta: ev.target.value })}
+          placeholder="nova pauta..."
+        />
+        <button onClick={() => this.props.dispatch(newPauta(this.state.nova_pauta))}>
+          ADD
+        </button>
+
+        <ul>
+          {this.props.global_pautas.map((pauta, index) => (
+            <li key={index}>
+              <Pauta pauta={pauta} idx={index} />
+            </li>
+          ))}
+        </ul>
+        <button onClick={() => console.log(this.props.global_pautas)} >Exportar</button>
+      </div>
+    );
+  }
 }
 
-export default App;
+/*
+  Essa parte disponibiliza o estado global e o metodo dispatch
+  Eles ficam acessiveis por meio da `this.props`
+*/
+const mapStateToProps = (state, ownProps) => {
+  return ({ global_pautas: state.pautasReducer });
+}
+const AppContainer = connect(mapStateToProps /*  */)(App);
+
+export default AppContainer;
